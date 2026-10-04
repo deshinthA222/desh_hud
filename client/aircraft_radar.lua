@@ -1,12 +1,9 @@
-
 local radarTargets = {}
 local showRadar = false
 local sweepAngle = 0
 
 RadarConfig = {
-    AllowedAircraft = {
-        lazer = true, hydra = true, raiju = true, alkonost = true, strikeforce = true
-    },
+    -- The whitelist has been removed. The radar will now show for all Aircraft.
     StealthAircraft = {
         akula = true, alkonost = true, raiju = true, rogue = true,
         besra = true, havok = true, swift2 = true, seabreeze = true
@@ -20,18 +17,28 @@ function GetAircraftCode(model)
     return codes[model] or string.upper(string.sub(model, 1, 3))
 end
 
--- Check if in allowed aircraft
+-- Check if in allowed aircraft (Now ALL helicopters and planes)
 CreateThread(function()
     while true do
         Wait(1000)
-        local ped = PlayerPedId()
-        if IsPedInAnyVehicle(ped, false) then
-            local veh = GetVehiclePedIsIn(ped, false)
-            local model = GetEntityModel(veh)
-            local name = GetDisplayNameFromVehicleModel(model):lower()
-            showRadar = RadarConfig.AllowedAircraft[name] == true
-        else
+        
+        if Config.EnableAircraftRadar == false then
             showRadar = false
+        else
+            local ped = PlayerPedId()
+            if IsPedInAnyVehicle(ped, false) then
+                local veh = GetVehiclePedIsIn(ped, false)
+                local vehicleClass = GetVehicleClass(veh)
+                
+                -- Class 15 = Helicopters, Class 16 = Planes
+                if vehicleClass == 15 or vehicleClass == 16 or IsPedInAnyHeli(ped) or IsPedInAnyPlane(ped) then
+                    showRadar = true
+                else
+                    showRadar = false
+                end
+            else
+                showRadar = false
+            end
         end
     end
 end)
@@ -46,7 +53,6 @@ CreateThread(function()
         end
 
         local nextTargets = {}
-
         local ped = PlayerPedId()
         local myCoords = GetEntityCoords(ped)
 
@@ -55,10 +61,15 @@ CreateThread(function()
                 local targetPed = GetPlayerPed(player)
                 if DoesEntityExist(targetPed) and IsPedInAnyVehicle(targetPed, false) then
                     local veh = GetVehiclePedIsIn(targetPed, false)
-                    if IsEntityInAir(veh) then
+                    local vehicleClass = GetVehicleClass(veh)
+                    
+                    -- Only track if the target is in a helicopter (15) or plane (16) and is in the air
+                    if (vehicleClass == 15 or vehicleClass == 16) and IsEntityInAir(veh) then
                         local model = GetEntityModel(veh)
                         local modelName = GetDisplayNameFromVehicleModel(model):lower()
                         local targetCoords = GetEntityCoords(veh)
+                        
+                        -- Keep stealth vehicles off the radar
                         if not RadarConfig.StealthAircraft[modelName]
                             and #(targetCoords - myCoords) <= (Config.RadarRange or 40000.0) then
                             table.insert(nextTargets, {

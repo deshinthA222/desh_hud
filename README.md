@@ -3,7 +3,7 @@
 Install this folder inside your FiveM server `resources` directory and add:
 
 ```cfg
-ensure esh_hud
+ensure desh_hud
 ```
 
 ## Controls

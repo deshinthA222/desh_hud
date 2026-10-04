@@ -55,6 +55,10 @@ local function ResolveWeaponName(weaponHash)
     return 'CUSTOM WEAPON'
 end
 
+local lastWeaponHash = nil
+local lastClipAmmo = -1
+local lastReserveAmmo = -1
+
 Citizen.CreateThread(function()
     local unarmedHash = GetHashKey('WEAPON_UNARMED')
     while true do
@@ -66,16 +70,30 @@ Citizen.CreateThread(function()
             local hasClip, clipAmmo = GetAmmoInClip(ped, weaponHash)
             clipAmmo = hasClip and (clipAmmo or 0) or 0
             local usesAmmo = totalAmmo > 0 or hasClip
+            
+            local currentClip = usesAmmo and clipAmmo or '--'
+            local currentReserve = usesAmmo and math.max(0, totalAmmo - clipAmmo) or '--'
 
-            SendNUIMessage({
-                action = 'weaponUpdate',
-                visible = true,
-                name = ResolveWeaponName(weaponHash),
-                clip = usesAmmo and clipAmmo or '--',
-                reserve = usesAmmo and math.max(0, totalAmmo - clipAmmo) or '--'
-            })
+            -- Optimization: Only dispatch NUI message if the weapon or ammo count actually changes
+            if weaponHash ~= lastWeaponHash or currentClip ~= lastClipAmmo or currentReserve ~= lastReserveAmmo then
+                lastWeaponHash = weaponHash
+                lastClipAmmo = currentClip
+                lastReserveAmmo = currentReserve
+
+                SendNUIMessage({
+                    action = 'weaponUpdate',
+                    visible = true,
+                    name = ResolveWeaponName(weaponHash),
+                    clip = currentClip,
+                    reserve = currentReserve
+                })
+            end
         else
-            SendNUIMessage({ action = 'weaponUpdate', visible = false })
+            -- Ensure we only send the hide action once, rather than every 100ms
+            if lastWeaponHash ~= nil then
+                lastWeaponHash = nil
+                SendNUIMessage({ action = 'weaponUpdate', visible = false })
+            end
         end
 
         Citizen.Wait(100)
