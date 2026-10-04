@@ -1,0 +1,621 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: transparent;
+    --hud-accent: #29e5cf;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+}
+
+.dashboard .indicator,
+.dashboard .indicator.active,
+.dashboard #ind-left.active,
+.dashboard #ind-right.active,
+.dashboard #ind-headlight,
+.dashboard #ind-hazard.active,
+.dashboard #ind-seatbelt.active,
+.dashboard #ind-abs.active,
+.dashboard #ind-check.active,
+.dashboard #ind-battery.active,
+.dashboard #ind-oil.active,
+.dashboard #ind-temp.active {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.headlight-off-icon,
+.lowbeam-icon-img,
+.highbeam-icon-img {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    opacity: 0;
+}
+#ind-headlight.light-state-off .headlight-off-icon {
+    opacity: .58;
+    filter: brightness(0) saturate(100%) invert(66%) sepia(8%) saturate(317%) hue-rotate(167deg) brightness(90%) contrast(88%) drop-shadow(0 0 2px rgba(160,175,184,.28));
+}
+#ind-headlight.light-state-low .lowbeam-icon-img {
+    opacity: 1;
+    filter: brightness(0) saturate(100%) invert(80%) sepia(86%) saturate(1318%) hue-rotate(75deg) brightness(108%) contrast(104%) drop-shadow(0 0 4px rgba(68,255,119,.72));
+}
+#ind-headlight.light-state-high .highbeam-icon-img {
+    opacity: 1;
+    filter: brightness(0) saturate(100%) invert(59%) sepia(91%) saturate(2572%) hue-rotate(170deg) brightness(108%) contrast(104%) drop-shadow(0 0 4px rgba(38,207,255,.72));
+}
+.dashboard .gauge-label,
+.dashboard .gear-label,
+.dashboard .odo-label { color: var(--hud-accent) !important; }
+.dashboard .gear-display,
+.dashboard .fuel-bar,
+.dashboard .center-panel { border-color: var(--hud-accent) !important; }
+.dashboard .fuel-level { background: var(--hud-accent) !important; }
+.dashboard .clock { color: var(--hud-accent) !important; }
+
+.hud-option-hidden { display: none !important; }
+.hud-icons-small .indicator { width: 20px !important; height: 20px !important; }
+.hud-icons-small .indicator-icon,
+.hud-icons-small .indicator-icon-img { width: 13px !important; height: 13px !important; }
+.hud-icons-large .indicator { width: 31px !important; height: 31px !important; }
+.hud-icons-large .indicator-icon,
+.hud-icons-large .indicator-icon-img { width: 22px !important; height: 22px !important; }
+
+.dash-icon-sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.indicator-icon {
+    width: 17px;
+    height: 17px;
+    display: block;
+    fill: currentColor;
+}
+
+.indicator-icon-img {
+    width: 17px;
+    height: 17px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.warning-icon-img { filter: invert(1); opacity: .52; }
+.indicator.active .warning-icon-img { opacity: 1; }
+#ind-hazard .state-off { filter: brightness(0) saturate(100%) invert(58%) sepia(8%) saturate(390%) hue-rotate(163deg) brightness(92%) contrast(88%); }
+#ind-hazard.active .state-on { filter: brightness(0) saturate(100%) invert(25%) sepia(97%) saturate(4284%) hue-rotate(350deg) brightness(112%) contrast(105%) drop-shadow(0 0 4px rgba(255,55,55,.78)); }
+.brake-icon-img { opacity: .56; }
+.indicator.active .brake-icon-img { opacity: 1; }
+.state-on { display: none; }
+.indicator.active .state-off { display: none; }
+.indicator.active .state-on { display: block; }
+.seatbelt-on { display: none; }
+#ind-seatbelt.active .seatbelt-off { display: none; }
+#ind-seatbelt.active .seatbelt-on { display: block; }
+
+.dashboard {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 900px;
+    height: 350px;
+    display: none;
+    gap: 15px;
+    align-items: flex-end;
+    perspective: 1000px;
+}
+
+/* ================= GAUGES ================= */
+
+.gauge {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.gauge canvas {
+    filter: drop-shadow(0 0 8px rgba(0, 220, 200, 0.3));
+    display: block;
+}
+
+.gauge-label {
+    position: absolute;
+    bottom: 8px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #29e5cf;
+}
+
+.gauge-unit {
+    position: absolute;
+    bottom: 2px;
+    font-size: 10px;
+    color: #aaa;
+}
+
+.speedometer {
+    width: 300px;
+    height: 300px;
+}
+
+.rpm {
+    width: 300px;
+    height: 300px;
+}
+
+.temperature {
+    width: 200px;
+    height: 200px;
+}
+
+/* ================= CENTER PANEL ================= */
+
+.center-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 350px;
+    padding: 20px;
+    background: rgba(15, 20, 25, 0.7);
+    border: 1px solid rgba(0, 220, 200, 0.3);
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+}
+
+/* Top Info: Gear + Fuel */
+
+.top-info {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.gear-display {
+    text-align: center;
+    padding: 10px 15px;
+    background: rgba(0, 50, 50, 0.5);
+    border: 1px solid #29e5cf;
+    border-radius: 5px;
+    min-width: 60px;
+}
+
+.gear-label {
+    font-size: 10px;
+    color: #29e5cf;
+    letter-spacing: 1px;
+}
+
+.gear-value {
+    font-size: 32px;
+    color: #fff;
+    line-height: 1;
+}
+
+.fuel-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.fuel-bar {
+    width: 150px;
+    height: 20px;
+    background: #222;
+    border: 1px solid #29e5cf;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.fuel-level {
+    height: 100%;
+    background: linear-gradient(90deg, #0f0, #0f0);
+    transition: width 0.1s ease;
+    box-shadow: inset 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.fuel-label {
+    font-size: 10px;
+    color: #aaa;
+}
+
+.fuel-percent {
+    font-size: 14px;
+    color: #fff;
+    min-width: 35px;
+}
+
+/* Indicators */
+
+.indicators {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.indicator {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #666;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.indicator.active {
+    color: #ff4444;
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+    filter: drop-shadow(0 0 4px rgba(255, 68, 68, 0.75));
+}
+
+.indicator#ind-headlight.light-state-high {
+    color: #26cfff;
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+    filter: none;
+}
+
+.indicator#ind-abs.active,
+.indicator#ind-check.active {
+    color: #ffaa00;
+    border-color: transparent;
+    background: transparent;
+    box-shadow: none;
+    filter: drop-shadow(0 0 4px rgba(255, 170, 0, 0.75));
+}
+
+/* Door Status */
+
+.door-status {
+    display: flex;
+    gap: 5px;
+    font-size: 10px;
+    color: #aaa;
+    min-height: 14px;
+}
+
+.door-item {
+    padding: 2px 6px;
+    background: rgba(200, 0, 0, 0.2);
+    border: 1px solid #c00;
+    border-radius: 2px;
+    color: #ff6666;
+}
+
+/* Bottom Info: Clock + Speed Unit Button */
+
+.bottom-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.clock {
+    font-size: 20px;
+    color: #29e5cf;
+    font-family: 'Courier New', monospace;
+}
+
+.speed-unit-btn {
+    padding: 6px 12px;
+    background: rgba(0, 150, 150, 0.3);
+    border: 1px solid #29e5cf;
+    color: #29e5cf;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 11px;
+    transition: all 0.2s ease;
+}
+
+.speed-unit-btn:hover {
+    background: rgba(0, 150, 150, 0.6);
+    box-shadow: 0 0 8px rgba(0, 220, 200, 0.5);
+}
+
+/* Odometer Panel */
+
+.odo-panel {
+    text-align: center;
+    min-width: 80px;
+}
+
+.odo-label {
+    font-size: 9px;
+    color: #29e5cf;
+    letter-spacing: 1px;
+}
+
+.odo-value {
+    font-size: 18px;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+    line-height: 1;
+}
+
+/* Night Mode */
+
+.dashboard.night-mode {
+    filter: brightness(0.7);
+}
+
+.dashboard.night-mode .gauge canvas {
+    filter: drop-shadow(0 0 15px rgba(0, 220, 200, 0.6)) brightness(1.2);
+}
+
+.dashboard.night-mode .indicator.active {
+    filter: brightness(1.4);
+}
+
+/* Rain Mode - slight blue tint */
+
+.dashboard.rain-mode {
+    filter: hue-rotate(200deg) saturate(0.8);
+}
+
+@media (max-width: 1200px) {
+    .dashboard {
+        width: 750px;
+        height: 300px;
+    }
+
+    .speedometer, .rpm {
+        width: 240px;
+        height: 240px;
+    }
+
+    .temperature {
+        width: 150px;
+        height: 150px;
+    }
+}
+
+/* v2.3 compact driving layout: all vehicle data at bottom-right */
+.dashboard {
+    position: absolute;
+    right: 24px;
+    bottom: 24px;
+    left: auto;
+    width: 820px;
+    height: 190px;
+    display: none;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 0;
+    transform-origin: bottom right;
+}
+
+.dashboard .gauge canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.dashboard .rpm {
+    order: 1;
+    width: 150px;
+    height: 150px;
+}
+
+.dashboard .center-panel {
+    order: 2;
+    width: 260px;
+    height: 175px;
+    flex: 0 0 260px;
+    padding: 12px;
+    border-radius: 9px;
+}
+
+.dashboard .temperature {
+    order: 3;
+    width: 110px;
+    height: 110px;
+}
+
+.dashboard .odo-panel {
+    order: 4;
+    min-width: 70px;
+    margin-bottom: 10px;
+}
+
+.dashboard .speedometer {
+    order: 5;
+    width: 180px;
+    height: 180px;
+}
+
+.dashboard .top-info { gap: 10px; }
+.dashboard .gear-display { padding: 7px 10px; }
+.dashboard .gear-value { font-size: 26px; }
+.dashboard .fuel-bar { width: 90px; height: 14px; }
+.dashboard .indicators { gap: 4px; }
+.dashboard .indicator { width: 25px; height: 25px; font-size: 11px; }
+.dashboard .clock { font-size: 16px; }
+.dashboard .speed-unit-btn { padding: 5px 8px; }
+.dashboard .odo-value { font-size: 14px; }
+
+@media (max-width: 1500px) {
+    .dashboard { transform: scale(0.82); }
+}
+
+/* v2.6 polished unified dashboard */
+.dashboard {
+    right: 22px;
+    bottom: 22px;
+    width: 614px;
+    height: 184px;
+    padding: 10px 12px;
+    gap: 8px;
+    align-items: center;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    overflow: visible;
+}
+
+.dashboard::before {
+    content: none;
+}
+
+.dashboard .gauge { z-index: 1; }
+.dashboard .gauge canvas { filter: drop-shadow(0 0 7px rgba(0, 220, 200, 0.22)); }
+.dashboard .gauge-label,
+.dashboard .gauge-unit { display: none; }
+
+.dashboard .rpm {
+    width: 122px;
+    height: 122px;
+    flex: 0 0 122px;
+}
+
+.dashboard .center-panel {
+    width: 242px;
+    height: 164px;
+    flex: 0 0 242px;
+    padding: 10px 11px;
+    justify-content: flex-start;
+    gap: 7px;
+    z-index: 1;
+    border-color: rgba(41, 229, 207, 0.42);
+    background: rgba(3, 14, 20, 0.62);
+    box-shadow: inset 0 0 20px rgba(41, 229, 207, 0.035);
+}
+
+.dashboard .temperature {
+    width: 92px;
+    height: 92px;
+    flex: 0 0 92px;
+}
+
+.dashboard .odo-panel {
+    min-width: 66px;
+    flex: 0 0 66px;
+    margin: 0;
+    z-index: 1;
+}
+
+.dashboard .speedometer {
+    width: 150px;
+    height: 150px;
+    flex: 0 0 150px;
+}
+
+.dashboard .gear-display {
+    min-width: 55px;
+    background: rgba(0, 180, 170, 0.12);
+    box-shadow: 0 0 12px rgba(41, 229, 207, 0.12);
+}
+.dashboard .gear-value { font-size: 30px; }
+.dashboard .fuel-display { gap: 6px; }
+.dashboard .fuel-bar { width: 75px; height: 11px; background: rgba(255,255,255,0.08); }
+.dashboard .fuel-percent { min-width: 31px; font-size: 12px; }
+.dashboard .indicators { grid-template-columns: repeat(5, 1fr); gap: 4px 9px; align-items: center; }
+.dashboard .indicator { width: 24px; height: 24px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.dashboard #ind-left.active,
+.dashboard #ind-right.active { color: #2df59a; border-color: transparent; box-shadow: none; filter: drop-shadow(0 0 4px rgba(45,245,154,.8)); }
+.dashboard #ind-seatbelt.active { color: #2df59a; border-color: transparent; box-shadow: none; filter: drop-shadow(0 0 4px rgba(45,245,154,.8)); }
+.dashboard .door-status { min-height: 16px; max-height: 16px; overflow: hidden; align-items: center; }
+.dashboard .door-item { padding: 1px 5px; line-height: 12px; }
+.dashboard .bottom-info { margin-top: auto; width: 100%; border-top: 1px solid rgba(41,229,207,.14); padding-top: 5px; }
+.dashboard .clock { font-size: 15px; letter-spacing: 1px; }
+.dashboard .speed-unit-btn { pointer-events: none; border-radius: 6px; }
+.dashboard .odo-label { color: rgba(41,229,207,.85); }
+.dashboard .odo-value { margin: 4px 0; font-size: 15px; letter-spacing: 1px; }
+
+@media (max-width: 1500px) {
+    .dashboard { transform: scale(0.86); }
+}
+
+/* Free layout: every major dashboard element is independently positioned. */
+.dashboard {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    padding: 0 !important;
+    transform: none !important;
+    pointer-events: none;
+    overflow: visible !important;
+}
+.dashboard .center-panel {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    pointer-events: none !important;
+}
+.dashboard .top-info,
+.dashboard .indicators,
+.dashboard .bottom-info {
+    display: contents !important;
+}
+.dashboard .hud-movable {
+    position: absolute !important;
+    margin: 0 !important;
+    pointer-events: none;
+    z-index: 2;
+}
+.layout-editing .dashboard .hud-movable {
+    pointer-events: auto;
+    cursor: move;
+    outline: 1px dashed rgba(41,229,207,.9);
+    outline-offset: 5px;
+    filter: drop-shadow(0 0 8px rgba(41,229,207,.32));
+}
+.layout-editing .dashboard .hud-movable::after {
+    content: 'MOVE • WHEEL';
+    position: absolute;
+    left: 50%;
+    top: -22px;
+    transform: translateX(-50%);
+    padding: 3px 6px;
+    white-space: nowrap;
+    color: #29e5cf;
+    background: rgba(3,14,20,.92);
+    font: 9px Arial, sans-serif;
+    border-radius: 3px;
+}
+.layout-editing .dashboard .indicator::after {
+    content: attr(title);
+}
+.dashboard .door-status.hud-movable {
+    width: max-content;
+    min-width: 70px;
+    min-height: 16px;
+    max-height: none;
+    overflow: visible;
+}
+.layout-editing .dashboard .door-status:empty::before {
+    content: 'DOOR ALERT';
+    color: rgba(41,229,207,.7);
+    font: 10px Arial, sans-serif;
+}

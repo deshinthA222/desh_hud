@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Vehicle Control System</title>
+        <meta name="author" content="Smokey">
+        <script src="./jquery.min.js" type="text/javascript"></script>
+        <link rel="stylesheet" href="./style.css">
+        <link rel="stylesheet" href="./vehicle-menu.css">
+        <link rel="stylesheet" href="./hud-settings.css">
+        <link rel="stylesheet" href="./flight-indicators/flight-indicators.css">
+        <link rel="stylesheet" href="./plane-indicators.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <svg class="ui-icon-sprite" aria-hidden="true">
+            <symbol id="vi-window" viewBox="0 0 24 24"><path d="M5 4h14l-1 15H6L5 4Zm2 3h10l-.7 9H7.7L7 7Z"/></symbol>
+            <symbol id="vi-seat" viewBox="0 0 24 24"><path d="M8 3v9h8V7a2 2 0 0 1 4 0v8a3 3 0 0 1-3 3h-1v3h-2v-3H8a4 4 0 0 1-4-4V8h2v6a2 2 0 0 0 2 2h9a1 1 0 0 0 1-1v-1H8a2 2 0 0 1-2-2V3h2Z"/></symbol>
+            <symbol id="vi-door" viewBox="0 0 24 24"><path d="M6 3h11l2 3v15H5V6l1-3Zm2 3v12h8V7l-1-1H8Zm5 5h2v2h-2v-2Z"/></symbol>
+            <symbol id="vi-hood" viewBox="0 0 24 24"><path d="M5 7h14l3 9v3H2v-3l3-9Zm2 2-2 6h14l-2-6H7Zm-2 8h3m8 0h3"/></symbol>
+            <symbol id="vi-trunk" viewBox="0 0 24 24"><path d="M4 6h16l2 7v6H2v-6l2-7Zm2 2-1 4h14l-1-4H6Zm-1 7v2h14v-2H5Z"/></symbol>
+            <symbol id="vi-engine" viewBox="0 0 24 24"><path d="M7 7h10l2 3h2v7h-3l-2 3H7l-2-3H2v-7h3l2-3Zm2-3h6v2H9V4Zm-1 6-1 2v3l1 2h7l1-2v-3l-1-2H8Z"/></symbol>
+            <symbol id="vi-left" viewBox="0 0 24 24"><path d="m14 5-7 7 7 7v-4h6V9h-6V5Z"/></symbol>
+            <symbol id="vi-right" viewBox="0 0 24 24"><path d="m10 5 7 7-7 7v-4H4V9h6V5Z"/></symbol>
+            <symbol id="vi-hazard" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3Zm0 5 5 9H7l5-9Zm-1 3v3h2v-3h-2Zm0 4v2h2v-2h-2Z"/></symbol>
+            <symbol id="vi-beam" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6c5 0 8 2 8 6s-3 6-8 6V6Zm11 1 7-2m-7 6 7-1m-7 5 7 1m-7 3 7 2"/></symbol>
+            <symbol id="vi-neon" viewBox="0 0 24 24"><path d="M5 8h14l2 6v3H3v-3l2-6Zm2 2-1 4h12l-1-4H7ZM5 20h14"/></symbol>
+            <symbol id="si-health" viewBox="0 0 24 24"><path d="M12 21S3 15.5 3 8.5C3 5.5 5.2 3 8.2 3c1.7 0 3.1.8 3.8 2 0.7-1.2 2.1-2 3.8-2C18.8 3 21 5.5 21 8.5 21 15.5 12 21 12 21Z"/></symbol>
+            <symbol id="si-food" viewBox="0 0 24 24"><path d="M4 10a8 6 0 0 1 16 0H4Zm-1 2h18v3H3v-3Zm2 5h14v2H5v-2ZM8 7h2V5h2V3h2v3h-2v2H8V7Z"/></symbol>
+            <symbol id="si-drink" viewBox="0 0 24 24"><path d="M12 2S5 10.2 5 15a7 7 0 0 0 14 0c0-4.8-7-13-7-13Zm0 16a3 3 0 0 1-3-3h2a1 1 0 0 0 1 1v2Z"/></symbol>
+            <symbol id="si-armor" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5.2 3.3 9.4 8 11 4.7-1.6 8-5.8 8-11V5l-8-3Zm0 3 5 1.9V11c0 3.4-1.9 6.4-5 7.8C8.9 17.4 7 14.4 7 11V6.9L12 5Z"/></symbol>
+            <symbol id="si-stamina" viewBox="0 0 24 24"><path d="m13 2-8 12h6l-1 8 9-13h-6V2Z"/></symbol>
+            <symbol id="fm-safe" viewBox="0 0 32 20"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M10 9V6a6 6 0 0 1 12 0v3m-14 0h16v10H8V9Zm8 4v3"/></symbol>
+            <symbol id="fm-semi" viewBox="0 0 32 20"><path d="M13 2h6l2 4v11l-2 2h-6l-2-2V6l2-4Zm0 5h6V5h-6v2Z"/></symbol>
+            <symbol id="fm-burst" viewBox="0 0 32 20"><path d="M3 3h5l1.5 3v10L8 18H3l-1.5-2V6L3 3Zm10 0h5l1.5 3v10L18 18h-5l-1.5-2V6L13 3Zm10 0h5l1.5 3v10L28 18h-5l-1.5-2V6L23 3Z"/></symbol>
+            <symbol id="fm-auto" viewBox="0 0 42 20"><path d="M2 4h5l1 3v9l-1 2H2l-1-2V7l1-3Zm8 0h5l1 3v9l-1 2h-5l-1-2V7l1-3Zm8 0h5l1 3v9l-1 2h-5l-1-2V7l1-3Zm8 0h5l1 3v9l-1 2h-5l-1-2V7l1-3Zm8 0h5l1 3v9l-1 2h-5l-1-2V7l1-3Z"/></symbol>
+        </svg>
+        <iframe id="dashboardFrame" src="./dashboard.html" title="Vehicle dashboard"></iframe>
+        <!-- JET HUD (Main) -->
+        <div id="main" class="main">
+            <div class="speed">
+                <div class="text w-600">SPEED</div>
+                <div class="box">
+                    <div class="text w-500" id="speed">350</div>
+                </div>
+                <div class="arrow"></div>
+            </div>
+            <div class="heading w-700" id="heading-text">254</div>
+            <div class="compass">
+                <div class="direction"></div>
+            </div>
+            <div class="hud">
+                <div class="pitchroll">
+                    <div class="pitch"></div>
+                </div>
+            </div>
+            <div class="altitude">
+                <div class="text w-600">ALT</div>
+                <div class="box">
+                    <div class="text w-500" id="alt">1050</div>
+                </div>
+                <div class="arrow"></div>
+            </div>
+            <div class="altitude-meter">
+                <div class="altitude-pointer"></div>
+            </div>
+            <div class="stall-warn fade">STALL WARNING</div>
+            <div class="alt-warn fade">PULL UP</div>
+            <div class="missile-warn fade">MISSILE</div>
+            <div class="missile-info">
+                <div class="missile-crosshair">
+                    <div class="missile-target"></div>
+                </div>
+                <div class="missile-dist">524</div>
+            </div>
+
+            <div id="planeIndicators" class="indicators plane-indicators" aria-label="Plane flight instruments">
+                <div id="airspeed"></div>
+                <div id="attitude"></div>
+                <div id="altimeter"></div>
+                <div id="coordinator"></div>
+                <div id="heading"></div>
+                <div id="vertical"></div>
+            </div>
+        </div>
+
+        <!-- STATUS HUD -->
+        <div id="statusHud" class="status-hud">
+            <div class="status-item status-movable" id="status-health" data-status-layout-id="health">
+                <svg class="status-icon icon-health"><use href="#si-health"/></svg>
+                <div class="status-value" id="health-value">100%</div>
+            </div>
+            <div class="status-item status-movable" id="status-food" data-status-layout-id="food">
+                <svg class="status-icon icon-food"><use href="#si-food"/></svg>
+                <div class="status-value" id="food-value">100%</div>
+            </div>
+            <div class="status-item status-movable" id="status-drink" data-status-layout-id="drink">
+                <svg class="status-icon icon-drink"><use href="#si-drink"/></svg>
+                <div class="status-value" id="drink-value">100%</div>
+            </div>
+            <div class="status-item status-movable" id="status-armor" data-status-layout-id="armor">
+                <svg class="status-icon icon-armor"><use href="#si-armor"/></svg>
+                <div class="status-value" id="armor-value">100%</div>
+            </div>
+            <div class="status-item status-movable" id="status-stamina" data-status-layout-id="stamina">
+                <svg class="status-icon icon-stamina"><use href="#si-stamina"/></svg>
+                <div class="status-value" id="stamina-value">100%</div>
+            </div>
+        </div>
+
+        <!-- CUSTOM WEAPON DISPLAY -->
+        <div id="weaponHud" class="weapon-hud" style="display:none;">
+            <div class="weapon-title-row"><span class="weapon-name" id="weapon-name">UNARMED</span><span class="weapon-fire-mode" id="weapon-fire-mode" title="SAFE"><svg viewBox="0 0 42 20" aria-hidden="true"><use id="weapon-fire-mode-use" href="#fm-safe"/></svg></span></div>
+            <div class="weapon-ammo"><span id="weapon-clip">0</span><span class="ammo-separator">/</span><span id="weapon-reserve">0</span></div>
+        </div>
+
+        <!-- USER HUD SETTINGS (/hudsettings) -->
+        <div id="hudSettings" class="hud-settings" style="display:none;">
+            <div class="hud-settings-header">
+                <div><span class="hud-settings-kicker">PERSONAL DISPLAY</span><h2>HUD SETTINGS</h2></div>
+                <button id="hud-settings-close" class="hud-settings-close" type="button">×</button>
+            </div>
+            <div class="hud-settings-grid">
+                <section class="hud-settings-section">
+                    <h3>Speed Meter</h3>
+                    <label><span>Full Dashboard</span><input type="checkbox" data-hud-setting="showDashboard"></label>
+                    <label><span>Speed Gauge</span><input type="checkbox" data-hud-setting="showSpeed"></label>
+                    <label><span>RPM Gauge</span><input type="checkbox" data-hud-setting="showRpm"></label>
+                    <label><span>Center Information</span><input type="checkbox" data-hud-setting="showCenter"></label>
+                    <label><span>Odometer</span><input type="checkbox" data-hud-setting="showOdometer"></label>
+                    <label class="hud-color-row"><span>HUD Color</span><input type="color" data-hud-setting="hudColor" value="#29e5cf"></label>
+                </section>
+                <section class="hud-settings-section">
+                    <h3>Dashboard Icons</h3>
+                    <label><span>Turn Signals</span><input type="checkbox" data-hud-setting="showTurn"></label>
+                    <label><span>Headlights</span><input type="checkbox" data-hud-setting="showHighbeam"></label>
+                    <label><span>Hazard</span><input type="checkbox" data-hud-setting="showHazard"></label>
+                    <label><span>Seatbelt</span><input type="checkbox" data-hud-setting="showSeatbelt"></label>
+                    <label><span>Brake / ABS</span><input type="checkbox" data-hud-setting="showBrake"></label>
+                    <label><span>Engine</span><input type="checkbox" data-hud-setting="showEngine"></label>
+                    <label><span>Battery</span><input type="checkbox" data-hud-setting="showBattery"></label>
+                    <label><span>Oil</span><input type="checkbox" data-hud-setting="showOil"></label>
+                    <label><span>Temperature</span><input type="checkbox" data-hud-setting="showTemperature"></label>
+                </section>
+                <section class="hud-settings-section hud-position-section">
+                    <h3>Free HUD Layout Editor</h3>
+                    <div class="hud-position-help">Drag each glowing HUD element to move it. Use the mouse wheel over an element to resize it. The layout saves automatically.</div>
+                    <button id="hud-layout-reset" type="button">Reset HUD Positions</button>
+                </section>
+            </div>
+            <div class="hud-settings-actions">
+                <button id="hud-settings-reset" type="button">Reset Defaults</button>
+                <button id="hud-settings-save" class="primary" type="button">Save & Close</button>
+            </div>
+        </div>
+
+        <!-- VEHICLE MENU (F6) -->
+        <div id="vehicleMenu" class="veh-menu" style="display: none;">
+            <div class="veh-controls">
+                <div class="veh-row">
+                    <div class="veh-panel">
+                        <div class="veh-panel-title">Windows</div>
+                        <div class="veh-panel-body">
+                            <button class="veh-btn window-toggle" data-action="window" data-index="0"><img class="veh-icon-img" src="./icons/window-front-left.svg" alt=""><span>FL</span></button>
+                            <button class="veh-btn window-toggle" data-action="window" data-index="1"><img class="veh-icon-img" src="./icons/window-front-right.svg" alt=""><span>FR</span></button>
+                            <button class="veh-btn window-toggle" data-action="window" data-index="2"><img class="veh-icon-img" src="./icons/window-rear-left.svg" alt=""><span>RL</span></button>
+                            <button class="veh-btn window-toggle" data-action="window" data-index="3"><img class="veh-icon-img" src="./icons/window-rear-right.svg" alt=""><span>RR</span></button>
+                        </div>
+                    </div>
+                    <div class="veh-panel">
+                        <div class="veh-panel-title">Seats</div>
+                        <div class="veh-panel-body" id="veh-seats"></div>
+                    </div>
+                    <div class="veh-panel" id="veh-panel-doors">
+                        <div class="veh-panel-title">Doors</div>
+                        <div class="veh-panel-body">
+                            <button class="veh-btn" data-action="door" data-index="0"><img class="veh-icon-img" src="./icons/door-front-left.svg" alt=""><span>FL</span></button>
+                            <button class="veh-btn" data-action="door" data-index="1"><img class="veh-icon-img" src="./icons/door-front-right.svg" alt=""><span>FR</span></button>
+                            <button class="veh-btn" data-action="door" data-index="2"><img class="veh-icon-img" src="./icons/door-rear-left.svg" alt=""><span>RL</span></button>
+                            <button class="veh-btn" data-action="door" data-index="3"><img class="veh-icon-img" src="./icons/door-rear-right.svg" alt=""><span>RR</span></button>
+                            <button class="veh-btn veh-btn-wide" data-action="hood"><img class="veh-icon-img" src="./icons/front-hood.svg" alt=""><span>Hood</span></button>
+                            <button class="veh-btn veh-btn-wide" data-action="trunk"><img class="veh-icon-img" src="./icons/rear-hood.svg" alt=""><span>Trunk</span></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="veh-row">
+                    <div class="veh-panel veh-panel-wide">
+                        <div class="veh-panel-title">Auxiliary</div>
+                        <div class="veh-panel-body">
+                            <button class="veh-btn veh-btn-wide" data-action="engine"><img class="veh-icon-img" src="./icons/ignition.svg" alt=""><span>Engine</span></button>
+                            <button class="veh-btn veh-btn-wide" data-action="leftIndicator" title="Left indicator"><svg class="ui-icon"><use href="#vi-left"/></svg><span>Left Signal</span></button>
+                            <button class="veh-btn veh-btn-wide" data-action="hazard" title="Hazard lights"><img class="veh-icon-img warning-menu-icon" src="./icons/hazard.svg" alt=""><span>Hazard</span></button>
+                            <button class="veh-btn veh-btn-wide" data-action="rightIndicator" title="Right indicator"><svg class="ui-icon"><use href="#vi-right"/></svg><span>Right Signal</span></button>
+                            <button class="veh-btn veh-btn-wide" data-action="neon"><svg class="ui-icon"><use href="#vi-neon"/></svg><span>Neon</span></button>
+                            <button class="veh-btn veh-btn-wide" data-action="interiorLight"><img class="veh-icon-img" src="./icons/interior-light.svg" alt=""><span>Interior Light</span></button>
+                            <button class="veh-btn veh-btn-wide aircraft-only" data-action="bombBay"><img class="veh-icon-img" src="./icons/bombbay.svg" alt=""><span>Bomb Bay</span></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="veh-close-row">
+                    <button class="veh-btn veh-close-btn" id="veh-close-btn">Close (ESC)</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            window.addEventListener('message', function (event) {
+                var frame = document.getElementById('dashboardFrame');
+                if (frame && frame.contentWindow && event.source !== frame.contentWindow) {
+                    frame.contentWindow.postMessage(event.data, '*');
+                }
+            });
+        </script>
+    </body>
+    <script src="./script.js"></script>
+    <script src="./vehicle-menu.js"></script>
+    <script src="./hud-settings.js"></script>
+    <script src="./sounds.js"></script>
+    <script src="./svg-assets.js"></script>
+    <script src="./plane-indicators.js"></script>
+</html>

@@ -1,0 +1,890 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --green: rgb(38, 236, 38);
+    --orange: rgb(243, 130, 24);
+    --red: rgb(230, 19, 19);
+    --blue: rgb(0, 204, 255);
+    --shadow: rgba(0, 0, 0, 0.7);
+    --lgray: rgb(255, 255, 255);
+    --hud-user-color: #29e5cf;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: 'Barlow', sans-serif;
+}
+
+html,
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+#dashboardFrame {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    pointer-events: none;
+    background: transparent;
+}
+
+/* Compact player status HUD (bottom-left) */
+.status-hud {
+    position: fixed;
+    inset: 0;
+    display: block !important;
+    z-index: 20;
+    color: #fff;
+    pointer-events: none;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.status-item {
+    width: 68px;
+    height: 34px;
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    position: absolute;
+    margin: 0;
+    transform-origin: center;
+}
+
+.status-icon {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    fill: currentColor;
+    filter: drop-shadow(0 0 5px currentColor);
+}
+
+.icon-health { color: #ff4057; }
+.icon-food { color: #ffb22e; }
+.icon-drink { color: #28cfff; }
+.icon-armor { color: #9fb7c1; }
+.icon-stamina { color: #ffe34a; }
+
+.status-value {
+    font: 700 13px/1 'Courier New', monospace;
+    text-align: right;
+    color: var(--hud-user-color);
+    text-shadow: 0 0 6px var(--hud-user-color);
+}
+
+#status-food,
+#status-drink,
+#status-armor,
+#status-health,
+#status-stamina { border: 0; }
+
+.status-layout-editing .status-movable {
+    pointer-events: auto;
+    cursor: move;
+    outline: 1px dashed var(--hud-user-color);
+    outline-offset: 4px;
+    filter: drop-shadow(0 0 7px color-mix(in srgb, var(--hud-user-color) 45%, transparent));
+}
+.status-layout-editing .status-movable::after {
+    content: attr(data-status-layout-id);
+    position: absolute;
+    left: 50%;
+    top: -19px;
+    transform: translateX(-50%);
+    padding: 2px 5px;
+    white-space: nowrap;
+    color: var(--hud-user-color);
+    background: rgba(3,14,20,.9);
+    font: 8px Arial, sans-serif;
+    text-transform: uppercase;
+    border-radius: 3px;
+}
+
+.weapon-hud {
+    position: fixed;
+    top: 42px;
+    right: 28px;
+    z-index: 30;
+    min-width: 160px;
+    text-align: right;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    pointer-events: none;
+    text-shadow: 0 0 7px rgba(0,0,0,.95);
+}
+
+.weapon-name {
+    color: var(--hud-user-color);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.weapon-title-row { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.weapon-fire-mode {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 24px;
+    padding: 1px 4px;
+    border: 1px solid var(--hud-user-color);
+    border-radius: 3px;
+    color: var(--hud-user-color);
+}
+.weapon-fire-mode svg { width: 100%; height: 100%; display: block; fill: currentColor; }
+
+.weapon-ammo { margin-top: 2px; font-size: 23px; font-weight: 900; }
+.weapon-ammo #weapon-reserve { color: #a7b7bc; font-size: 16px; }
+.ammo-separator { margin: 0 5px; color: #4f686e; }
+
+.main {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+/* Helicopters use only the five lower analogue instruments. The green jet
+   flight symbology is reserved for planes. */
+.main.helicopter-mode > .speed,
+.main.helicopter-mode > .heading,
+.main.helicopter-mode > .compass,
+.main.helicopter-mode > .hud,
+.main.helicopter-mode > .altitude,
+.main.helicopter-mode > .altitude-meter,
+.main.helicopter-mode > .stall-warn,
+.main.helicopter-mode > .alt-warn,
+.main.helicopter-mode > .missile-warn,
+.main.helicopter-mode > .missile-info {
+    display: none !important;
+}
+
+.hud {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 500px;
+    height: 400px;
+    transform: translate(-50%, -50%);
+    overflow: hidden;
+}
+
+.mid-point {
+    display: none !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 64px;
+    height: 64px;
+    transform: translate(-50%, -50%);
+    border: 2px solid currentColor;
+    border-radius: 50%;
+}
+
+.gun-crosshair {
+    display: none !important;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    border: 2px dashed var(--lgray);
+    border-radius: 100%;
+    transform: translate(-50%, -50%);
+}
+
+.gun-line {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.gun-line:before {
+    position: absolute;
+    content: "";
+    width: 30px;
+    left: -30px;
+    top: 50%;
+    border-bottom: 2px solid var(--lgray);
+    transform: translate(0%, -50%);
+}
+
+.gun-line:after {
+    position: absolute;
+    content: "";
+    width: 30px;
+    left: 16px;
+    top: 50%;
+    border-bottom: 2px solid var(--lgray);
+    transform: translate(0%, -50%);
+}
+
+.missile-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(calc(-25px), -50%);
+}
+
+.missile-crosshair {
+    display: none !important;
+    width: 50px;
+    height: 50px;
+    border: 2px dashed var(--lgray);
+}
+
+.missile-target {
+    display: none !important;
+    width: 32px;
+    height: 32px;
+    transform: rotate(45deg);
+    margin-left: 7px;
+    margin-top: 7px;
+}
+
+.missile-dist {
+    display: inline-block;
+    font-weight: 600;
+    margin-left: 0;
+    padding: 2px 5px;
+    color: #fff !important;
+    background: rgba(0, 0, 0, 0.42);
+    border-radius: 3px;
+    text-shadow: 0 1px 3px #000;
+}
+
+.pitchroll {
+    position: absolute;
+    width: 350px;
+    height: 300px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(0deg);
+    overflow: hidden;
+}
+
+.pitch {
+    margin-top: 0;
+}
+
+.pitchline {
+    padding: 25px 0px;
+}
+
+.rightline {
+    position: relative;
+    display: block;
+    margin-left: 206px;
+    margin-top: -20px;
+    width: 100%;
+}
+
+.pitch-number {
+    display: inline-block;
+    width: 35px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.linedown,
+.line {
+    position: relative;
+    display: inline-block;
+    width: 30%;
+}
+
+.line.full {
+    width: 30%;
+}
+
+.leftline .line:before {
+    content: "";
+    position: absolute;
+    height: 12px;
+    top: 0px;
+    left: 0%;
+}
+
+.rightline .line:after {
+    content: "";
+    position: absolute;
+    height: 12px;
+    top: 0px;
+    left: 100%;
+}
+
+.leftline .linedown:before {
+    content: "";
+    position: absolute;
+    height: 12px;
+    top: -10px;
+    left: 0px;
+}
+
+.rightline .linedown:after {
+    content: "";
+    position: absolute;
+    height: 12px;
+    top: -10px;
+    left: 100%;
+}
+
+.stall-warn,
+.missile-warn,
+.alt-warn {
+    position: absolute;
+    display: none;
+    left: 50%;
+    width: 150px;
+    padding: 3px;
+    color: var(--red);
+    text-align: center;
+    font-weight: 600;
+    border: 2px solid var(--red);
+    transform: translate(-50%, 0%);
+}
+
+.red .stall-warn,
+.red .missile-warn,
+.red .alt-warn {
+    color: var(--orange);
+    border: 2px solid var(--orange);
+}
+
+.stall-warn {
+    top: 35%;
+}
+
+.alt-warn {
+    top: calc(35% + 33px);
+}
+
+.missile-warn {
+    top: calc(60%);
+}
+
+.speed {
+    position: absolute;
+    width: 80px;
+    top: calc(50% - 20px);
+    left: calc(50% - 320px);
+    transform: translate(-50%, -50%);
+}
+
+.speed .text {
+    padding: 2px;
+    font-size: 20px;
+}
+
+.speed .box {
+    width: 80px;
+}
+
+.speed .arrow {
+    width: 22px;
+    height: 22px;
+    margin-top: -27px;
+    margin-left: 69px;
+    transform: rotate(45deg);
+}
+
+.altitude {
+    position: absolute;
+    width: 80px;
+    top: calc(50% - 20px);
+    left: calc(50% + 320px);
+    transform: translate(-50%, -50%);
+}
+
+.altitude .text {
+    padding: 2px;
+    font-size: 20px;
+    margin-left: 11px;
+}
+
+.altitude .box .text {
+    padding: 2px;
+    font-size: 20px;
+    margin-left: none;
+    text-align: right;
+}
+
+.altitude .box {
+    width: 80px;
+    margin-left: 11px;
+}
+
+.altitude .arrow {
+    width: 22px;
+    height: 22px;
+    margin-top: -27px;
+    transform: rotate(-45deg);
+}
+
+.altitude-meter {
+    position: absolute;
+    top: 50%;
+    left: calc(50% + 238px);
+    width: 10px;
+    height: 300px;
+    transform: translate(0%, -50%);
+}
+
+.altitude-pointer {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    margin-left: -2px;
+    margin-top: 280px;
+    border-top: 2px solid var(--green);
+    border-right: 2px solid var(--green);
+    transform: rotate(45deg);
+}
+
+.gear-info {
+    position: absolute;
+    padding: 5px;
+    top: calc(50% + 200px);
+    left: calc(50% + 270px);
+    transform: translate(0%, -100%);
+}
+
+.vtol-info {
+    position: absolute;
+    padding: 5px;
+    top: calc(50% + 200px);
+    left: calc(50% - 270px);
+    transform: translate(-100%, -100%);
+}
+
+.heading {
+    position: absolute;
+    left: 50%;
+    top: calc(50% - 260px);
+    transform: translate(-50%, 0%);
+    padding: 2px;
+    font-size: 20px;
+}
+
+.compass {
+    position: absolute;
+    left: 50%;
+    top: calc(50% - 230px);
+    width: 280px;
+    height: 40px;
+    transform: translate(-50%, 0%);
+    text-align: center;
+    overflow: hidden;
+}
+
+.direction,
+.steps {
+    width: 2000%;
+}
+
+.direction {
+    position: absolute;
+    transform: translate(-50%, 0%);
+    left: 50%;
+}
+
+.single-direction {
+    position: relative;
+    display: inline-block;
+    width: 25px;
+    height: 15px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.single-direction:before {
+    content: "";
+    position: absolute;
+    width: 1px;
+    height: 8px;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translate(-50%, 0%);
+}
+
+.single-direction.bold:before {
+    content: "";
+    position: absolute;
+    width: 2px;
+    height: 14px;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translate(-50%, 0%);
+}
+
+.w-500 {
+    font-weight: 500;
+}
+
+.w-600 {
+    font-weight: 600;
+}
+
+.w-700 {
+    font-weight: 700;
+}
+
+.green .text,
+.green .single-direction,
+.green .pitch-number,
+.green .gear-info,
+.green .vtol-info,
+.green .heading {
+    color: var(--green);
+    text-shadow: 0px 0px 2px var(--shadow);
+}
+
+.red .text,
+.red .single-direction,
+.red .pitch-number,
+.red .gear-info,
+.red .vtol-info,
+.missile-dist,
+.red .heading {
+    color: var(--red);
+    text-shadow: 0px 0px 2px var(--shadow);
+}
+
+.orange .text,
+.orange .single-direction,
+.orange .pitch-number,
+.orange .gear-info,
+.orange .vtol-info,
+.red .missile-dist,
+.orange .heading {
+    color: var(--orange);
+    text-shadow: 0px 0px 2px var(--shadow);
+}
+
+.blue .text,
+.blue .single-direction,
+.blue .pitch-number,
+.blue .gear-info,
+.blue .vtol-info,
+.blue .heading {
+    color: var(--blue);
+    text-shadow: 0px 0px 2px var(--shadow);
+}
+
+.green .altitude-meter {
+    border-top: 2px solid var(--green);
+    border-bottom: 2px solid var(--green);
+}
+
+.orange .altitude-meter {
+    border-top: 2px solid var(--orange);
+    border-bottom: 2px solid var(--orange);
+}
+
+.red .altitude-meter {
+    border-top: 2px solid var(--red);
+    border-bottom: 2px solid var(--red);
+}
+
+.blue .altitude-meter {
+    border-top: 2px solid var(--blue);
+    border-bottom: 2px solid var(--blue);
+}
+
+.green .hud {
+    border-left: 2px solid var(--green);
+    border-right: 2px solid var(--green);
+}
+
+.orange .hud {
+    border-left: 2px solid var(--orange);
+    border-right: 2px solid var(--orange);
+}
+
+.red .hud {
+    border-left: 2px solid var(--red);
+    border-right: 2px solid var(--red);
+}
+
+.blue .hud {
+    border-left: 2px solid var(--blue);
+    border-right: 2px solid var(--blue);
+}
+
+.green .speed .box {
+    border: 2px solid var(--green);
+    border-right: 2px solid transparent;
+}
+.orange .speed .box {
+    border: 2px solid var(--orange);
+    border-right: 2px solid transparent;
+}
+.red .speed .box {
+    border: 2px solid var(--red);
+    border-right: 2px solid transparent;
+}
+.blue .speed .box {
+    border: 2px solid var(--blue);
+    border-right: 2px solid transparent;
+}
+
+.green .altitude-pointer,
+.green .speed .arrow {
+    border-right: 2px solid var(--green);
+    border-top: 2px solid var(--green);
+}
+
+.orange .altitude-pointer,
+.orange .speed .arrow {
+    border-right: 2px solid var(--orange);
+    border-top: 2px solid var(--orange);
+}
+
+.red .altitude-pointer,
+.red .speed .arrow {
+    border-right: 2px solid var(--red);
+    border-top: 2px solid var(--red);
+}
+
+.blue .altitude-pointer,
+.blue .speed .arrow {
+    border-right: 2px solid var(--blue);
+    border-top: 2px solid var(--blue);
+}
+
+.green .altitude .box {
+    border: 2px solid var(--green);
+    border-left: 2px solid transparent;
+}
+.orange .altitude .box {
+    border: 2px solid var(--orange);
+    border-left: 2px solid transparent;
+}
+.red .altitude .box {
+    border: 2px solid var(--red);
+    border-left: 2px solid transparent;
+}
+.blue .altitude .box {
+    border: 2px solid var(--blue);
+    border-left: 2px solid transparent;
+}
+
+.green .altitude .arrow {
+    border-left: 2px solid var(--green);
+    border-top: 2px solid var(--green);
+}
+
+.orange .altitude .arrow {
+    border-left: 2px solid var(--orange);
+    border-top: 2px solid var(--orange);
+}
+
+.red .altitude .arrow {
+    border-left: 2px solid var(--red);
+    border-top: 2px solid var(--red);
+}
+
+.blue .altitude .arrow {
+    border-left: 2px solid var(--blue);
+    border-top: 2px solid var(--blue);
+}
+
+.green .gear-info,
+.green .vtol-info {
+    border: 2px solid var(--green);
+}
+
+.orange .gear-info,
+.orange .vtol-info {
+    border: 2px solid var(--orange);
+}
+
+.red .gear-info,
+.red .vtol-info {
+    border: 2px solid var(--red);
+}
+
+.blue .gear-info,
+.blue .vtol-info {
+    border: 2px solid var(--blue);
+}
+
+.green .single-direction.bold:before,
+.green .single-direction:before {
+    background: var(--green);
+}
+
+.orange .single-direction.bold:before,
+.orange .single-direction:before {
+    background: var(--orange);
+}
+
+.red .single-direction.bold:before,
+.red .single-direction:before {
+    background: var(--red);
+}
+
+.blue .single-direction.bold:before,
+.blue .single-direction:before {
+    background: var(--blue);
+}
+
+.green .missile-target,
+.blue .missile-target,
+.orange .missile-target {
+    border: 2px dashed var(--red);
+}
+
+.red .missile-target {
+    border: 2px dashed var(--orange);
+}
+
+.green .rightline .linedown,
+.green .leftline .linedown,
+.green .rightline .line,
+.green .leftline .line {
+    border-bottom: 2px dashed var(--green);
+}
+
+.orange .rightline .linedown,
+.orange .leftline .linedown,
+.orange .rightline .line,
+.orange .leftline .line {
+    border-bottom: 2px dashed var(--orange);
+}
+
+.red .rightline .linedown,
+.red .leftline .linedown,
+.red .rightline .line,
+.red .leftline .line {
+    border-bottom: 2px dashed var(--red);
+}
+
+.blue .rightline .linedown,
+.blue .leftline .linedown,
+.blue .rightline .line,
+.blue .leftline .line {
+    border-bottom: 2px dashed var(--blue);
+}
+
+.green .rightline .linedown:after,
+.green .rightline .line:after {
+    border-right: 2px solid var(--green);
+}
+
+.orange .rightline .linedown:after,
+.orange .rightline .line:after {
+    border-right: 2px solid var(--orange);
+}
+
+.red .rightline .linedown:after,
+.red .rightline .line:after {
+    border-right: 2px solid var(--red);
+}
+
+.blue .rightline .linedown:after,
+.blue .rightline .line:after {
+    border-right: 2px solid var(--blue);
+}
+
+.green .leftline .linedown:before,
+.green .leftline .line:before {
+    border-left: 2px solid var(--green);
+}
+
+.orange .leftline .linedown:before,
+.orange .leftline .line:before {
+    border-left: 2px solid var(--orange);
+}
+
+.red .leftline .linedown:before,
+.red .leftline .line:before {
+    border-left: 2px solid var(--red);
+}
+
+.blue .leftline .linedown:before,
+.blue .leftline .line:before {
+    border-left: 2px solid var(--blue);
+}
+
+.green .line.full {
+    border-bottom: 2px solid var(--green);
+}
+
+.orange .line.full {
+    border-bottom: 2px solid var(--orange);
+}
+
+.red .line.full {
+    border-bottom: 2px solid var(--red);
+}
+
+.blue .line.full {
+    border-bottom: 2px solid var(--blue);
+}
+
+.green .mid-point {
+    background-image: url("./img/green-mid.png");
+    background-size: cover;
+}
+
+.orange .mid-point {
+    background-image: url("./img/orange-mid.png");
+    background-size: cover;
+}
+
+.red .mid-point {
+    background-image: url("./img/red-mid.png");
+    background-size: cover;
+}
+
+.blue .mid-point {
+    background-image: url("./img/blue-mid.png");
+    background-size: cover;
+}
+
+.fade {
+    -webkit-animation-name: fade;
+    animation-name: fade;
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+    animation-iteration-count: infinite;
+}
+
+@keyframes fade {
+    0% {opacity: 0;}
+    20% {opacity: 1;}
+    80% {opacity: 1;}
+    100% {opacity: 0;}
+}

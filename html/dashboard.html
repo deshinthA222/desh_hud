@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vehicle Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./dashboard.css">
+</head>
+<body>
+    <svg class="dash-icon-sprite" aria-hidden="true">
+        <symbol id="di-left" viewBox="0 0 24 24"><path d="m14 5-7 7 7 7v-4h6V9h-6V5Z"/></symbol>
+        <symbol id="di-right" viewBox="0 0 24 24"><path d="m10 5 7 7-7 7v-4H4V9h6V5Z"/></symbol>
+        <symbol id="di-beam" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M3 6c5 0 8 2 8 6s-3 6-8 6V6Zm12 1 7-2m-7 6 7-1m-7 5 7 1m-7 3 7 2"/></symbol>
+        <symbol id="di-hazard" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3Zm0 5 5 9H7l5-9Zm-1 3v3h2v-3h-2Zm0 4v2h2v-2h-2Z"/></symbol>
+        <symbol id="di-seatbelt" viewBox="0 0 24 24"><path d="M8 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm-2 5h4l2 5 4-5 2 1-5 7v5h-3v-5L6 8Zm10 5 2-2 3 3-2 2-3-3Z"/></symbol>
+        <symbol id="di-engine" viewBox="0 0 24 24"><path d="M7 7h10l2 3h2v7h-3l-2 3H7l-2-3H2v-7h3l2-3Zm2-3h6v2H9V4Zm-1 6-1 2v3l1 2h7l1-2v-3l-1-2H8Z"/></symbol>
+        <symbol id="di-battery" viewBox="0 0 24 24"><path d="M7 4h3v2h4V4h3v2h3v14H4V6h3V4Zm0 5v8h10V9H7Zm2 3h2v-2h2v2h2v2h-2v2h-2v-2H9v-2Z"/></symbol>
+        <symbol id="di-oil" viewBox="0 0 24 24"><path d="m4 8 8-3 4 3h4l2 5-3 2-2-3h-4l-3-2-4 2v5H3V9l1-1Zm14 8c2 2 2 3 0 5-2-2-2-3 0-5Z"/></symbol>
+        <symbol id="di-temp" viewBox="0 0 24 24"><path d="M10 4a3 3 0 0 1 6 0v9.3a5 5 0 1 1-6 0V4Zm3-1a1 1 0 0 0-1 1v10.5l-1 .6a3 3 0 1 0 4 0l-1-.6V4a1 1 0 0 0-1-1Z"/></symbol>
+    </svg>
+    <div id="dashboard" class="dashboard">
+        <!-- Speedometer (Left) -->
+        <div class="gauge speedometer hud-movable" data-layout-id="speed">
+            <canvas id="speedCanvas" width="280" height="280"></canvas>
+            <div class="gauge-label">SPEED</div>
+            <div class="gauge-unit" id="speedUnit">KM/H</div>
+        </div>
+
+        <!-- RPM Gauge (Right) -->
+        <div class="gauge rpm hud-movable" data-layout-id="rpm">
+            <canvas id="rpmCanvas" width="280" height="280"></canvas>
+            <div class="gauge-label">RPM</div>
+            <div class="gauge-unit">×1000</div>
+        </div>
+
+        <!-- Center Display Panel -->
+        <div class="center-panel">
+            <!-- Top Row: Gear & Fuel -->
+            <div class="top-info">
+                <div class="gear-display hud-movable" data-layout-id="gear">
+                    <div class="gear-label">GEAR</div>
+                    <div class="gear-value" id="gearValue">N</div>
+                </div>
+                <div class="fuel-display hud-movable" data-layout-id="fuel">
+                    <div class="fuel-bar">
+                        <div class="fuel-level" id="fuelLevel"></div>
+                    </div>
+                    <div class="fuel-label">FUEL</div>
+                    <div class="fuel-percent" id="fuelPercent">100%</div>
+                </div>
+            </div>
+
+            <!-- Indicators Row -->
+            <div class="indicators">
+                <div class="indicator hud-movable" data-layout-id="turn-left" id="ind-left" title="Left Turn"><svg class="indicator-icon"><use href="#di-left"/></svg></div>
+                <div class="indicator hud-movable" data-layout-id="turn-right" id="ind-right" title="Right Turn"><svg class="indicator-icon"><use href="#di-right"/></svg></div>
+                <div class="indicator light-state-off hud-movable" data-layout-id="headlight" id="ind-headlight" title="Headlights">
+                    <img class="indicator-icon-img headlight-off-icon" src="./icons/headlight-off.svg" alt="Lights Off">
+                    <img class="indicator-icon-img lowbeam-icon-img" src="./icons/low-beam.svg" alt="Low Beam">
+                    <img class="indicator-icon-img highbeam-icon-img" src="./icons/high-beam.svg" alt="High Beam">
+                </div>
+                <div class="indicator hud-movable" data-layout-id="hazard" id="ind-hazard" title="Hazard"><img class="indicator-icon-img warning-icon-img state-off" src="./icons/hazard.svg" alt=""><img class="indicator-icon-img state-on" src="./icons/hazard-active.svg" alt=""></div>
+                <div class="indicator hud-movable" data-layout-id="seatbelt" id="ind-seatbelt" title="Seatbelt"><img class="indicator-icon-img seatbelt-off" src="./icons/seatbelt.svg" alt=""><img class="indicator-icon-img seatbelt-on" src="./icons/seatbelt-active.svg" alt=""></div>
+                <div class="indicator hud-movable" data-layout-id="brake" id="ind-abs" title="Brake / ABS"><img class="indicator-icon-img brake-icon-img" src="./icons/brake.svg" alt=""></div>
+                <div class="indicator hud-movable" data-layout-id="engine" id="ind-check" title="Engine Check"><img class="indicator-icon-img warning-icon-img" src="./icons/engine-warning.svg" alt=""></div>
+                <div class="indicator hud-movable" data-layout-id="battery" id="ind-battery" title="Battery"><img class="indicator-icon-img warning-icon-img" src="./icons/battery.svg" alt=""></div>
+                <div class="indicator hud-movable" data-layout-id="oil" id="ind-oil" title="Oil Pressure"><img class="indicator-icon-img warning-icon-img" src="./icons/engine-oil.svg" alt=""></div>
+                <div class="indicator hud-movable" data-layout-id="temperature" id="ind-temp" title="Temperature"><img class="indicator-icon-img warning-icon-img state-off" src="./icons/temperature-low.svg" alt=""><img class="indicator-icon-img state-on" src="./icons/temperature-high.svg" alt=""></div>
+            </div>
+
+            <!-- Door Status -->
+            <div class="door-status hud-movable" data-layout-id="doors" id="doorStatus"></div>
+
+            <!-- Bottom: Clock & Speed Unit -->
+            <div class="bottom-info">
+                <div class="clock hud-movable" data-layout-id="clock" id="clock">00:00</div>
+            </div>
+        </div>
+
+        <!-- Odometer (Bottom Left) -->
+        <div class="odo-panel hud-movable" data-layout-id="odometer">
+            <div class="odo-label">ODOMETER</div>
+            <div class="odo-value" id="odometer">0000000</div>
+            <div class="odo-label">KM</div>
+        </div>
+    </div>
+
+    <script src="./dashboard.js"></script>
+</body>
+</html>
