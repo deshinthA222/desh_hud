@@ -3,7 +3,7 @@
 Install this folder inside your FiveM server `resources` directory and add:
 
 ```cfg
-ensure aircraft_hud
+ensure esh_hud
 ```
 
 ## Controls
